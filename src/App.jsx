@@ -1,11 +1,11 @@
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ClerkProvider, SignedIn, SignedOut, useAuth, RedirectToSignIn } from '@clerk/clerk-react';
+import { ClerkProvider, useAuth, RedirectToSignIn, useClerk } from '@clerk/clerk-react';
+import { useEffect } from 'react';
 import { queryClientInstance } from '@/lib/query-client';
 import ScrollToTop from './components/ScrollToTop';
 import Layout from '@/components/Layout';
 import { Toaster } from '@/components/ui/toaster';
-
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
@@ -19,6 +19,14 @@ import ChatPreview from '@/pages/ChatPreview';
 import PageNotFound from './lib/PageNotFound';
 
 const CLERK_KEY = 'pk_test_aGVhbHRoeS1zcG9uZ2UtODcuY2xlcmsuYWNjb3VudHMuZGV2JA';
+
+function ClerkWindowExposer() {
+  const clerk = useClerk();
+  useEffect(() => {
+    window.Clerk = clerk;
+  }, [clerk]);
+  return null;
+}
 
 function ProtectedRoute({ children }) {
   const { isLoaded, isSignedIn } = useAuth();
@@ -34,6 +42,7 @@ function ProtectedRoute({ children }) {
 function App() {
   return (
     <ClerkProvider publishableKey={CLERK_KEY}>
+      <ClerkWindowExposer />
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
